@@ -6,21 +6,20 @@ from pyspark.sql import SparkSession
 from pyspark.ml.recommendation import ALSModel
 from conf import als_model_path
 from pyspark.sql import Row
-from db.db_connect import replace_recommend
+from db.db_connect import replace_recommend, select_users
 
 
 def model_predict():
     spark = SparkSession.builder.getOrCreate()
     als_model = ALSModel.load(als_model_path)
+    user_row_list = []
+    data = select_users()
 
-    # 给 5 个用户做预测
-    df = spark.createDataFrame([
-        Row(user_id=1),
-        Row(user_id=2),
-        Row(user_id=3),
-        Row(user_id=4),
-        Row(user_id=5),
-    ])
+    for user in data:
+        user_row_list.append(Row(user_id=user[0]))
+
+    # 给用户做预测
+    df = spark.createDataFrame(user_row_list)
     predict_df = als_model.recommendForUserSubset(df, 300)
     predict_df = predict_df.toPandas()
     store_to_db(predict_df)

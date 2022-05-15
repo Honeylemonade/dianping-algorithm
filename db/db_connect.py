@@ -23,3 +23,12 @@ def select_recommend(user_id):
 
     # 使用 fetchone() 方法获取一条数据
     return __cursor.fetchone()
+
+
+def select_users():
+    sql = 'SELECT * from user'
+    # 使用execute方法执行SQL语句
+    __cursor.execute(sql)
+
+    # 使用 fetchone() 方法获取一条数据
+    return __cursor.fetchall()
